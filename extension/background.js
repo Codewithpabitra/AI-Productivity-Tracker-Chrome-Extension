@@ -36,8 +36,21 @@ async function saveTime(tab, duration) {
 
   // If not classified, call backend
   if (!classified[domain]) {
-    const category = await classifySite(tab.title, tab.url);
-    classified[domain] = category;
+    // Manual fast classification (no AI call)
+    if (domain.includes("github.com")) {
+      classified[domain] = "Work";
+    } else if (domain.includes("chatgpt.com")) {
+      classified[domain] = "Study";
+    } else if (domain.includes("youtube.com")) {
+      classified[domain] = "Entertainment";
+    } else {
+      // Lock to prevent multiple parallel API calls
+      classified[domain] = "Loading";
+      await chrome.storage.local.set({ classified });
+
+      const category = await classifySite(tab.title, tab.url);
+      classified[domain] = category;
+    }
   }
 
   const category = classified[domain];
@@ -53,17 +66,20 @@ async function saveTime(tab, duration) {
 
 async function classifySite(title, url) {
   try {
+    console.log("Calling backend classify for:", url);
     const response = await fetch("http://localhost:5000/classify", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title, url })
+      body: JSON.stringify({ title, url }),
     });
 
     const data = await response.json();
+    console.log("Backend returned:", data);
     return data.category || "Other";
   } catch (error) {
+    console.error("Fetch error:", error);
     return "Other";
   }
 }

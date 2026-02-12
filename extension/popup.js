@@ -18,24 +18,49 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 document.getElementById("analyzeBtn").addEventListener("click", async () => {
-  const result = await chrome.storage.local.get(["timeData"]);
-  const timeData = result.timeData || {};
+  const button = document.getElementById("analyzeBtn");
+  const loader = document.getElementById("loader");
+  const resultBox = document.getElementById("aiResult");
 
-  let summary = "";
+  // Prevent double click
+  if (button.disabled) return;
 
-  for (let category in timeData) {
-    summary += `${category}: ${formatTime(timeData[category])}\n`;
+  // Disable button + show loading
+  button.disabled = true;
+  button.innerText = "Analyzing...";
+  button.classList.add("disabled-btn");
+
+  loader.style.display = "block";
+  resultBox.innerText = "";
+
+  try {
+    const result = await chrome.storage.local.get(["timeData"]);
+    const timeData = result.timeData || {};
+
+    let summary = "";
+
+    for (let category in timeData) {
+      summary += `${category}: ${formatTime(timeData[category])}\n`;
+    }
+
+    const response = await fetch("http://localhost:5000/analyze", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ summary }),
+    });
+
+    const data = await response.json();
+
+    resultBox.innerText = data.result;
+  } catch (error) {
+    resultBox.innerText = "Something went wrong. Try again later.";
+  } finally {
+    // Always reset UI
+    loader.style.display = "none";
+    button.disabled = false;
+    button.innerText = "Get AI Insights";
+    button.classList.remove("disabled-btn");
   }
-
-  const response = await fetch("http://localhost:5000/analyze", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ summary })
-  });
-
-  const data = await response.json();
-
-  document.getElementById("aiResult").innerText = data.result;
 });

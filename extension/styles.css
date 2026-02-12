@@ -7,10 +7,43 @@ body {
 h2 {
   text-align: center;
 }
+#title {
+    color: rgb(3, 108, 246);
+}
 
 button {
   margin-top: 10px;
   padding: 5px;
   width: 100%;
   cursor: pointer;
+  background-color: #4CAF50;
+  color: black;
+  outline: none;
+  border: 2px solid black;
+  margin-bottom: 10px;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4CAF50;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+button:disabled,
+.disabled-btn {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button:disabled:hover {
+  cursor: not-allowed;
 }
