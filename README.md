@@ -163,7 +163,7 @@ http://localhost:5000
 
 ## 🧑‍💻 Author
 
-Pabitra Maity  
+Pabitra Maity | @Codewithpabitra
 Developer & AI Enthusiast  
 
 ---
